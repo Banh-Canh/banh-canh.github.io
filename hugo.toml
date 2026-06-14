@@ -1,0 +1,60 @@
+baseURL = "https://banh-canh.github.io/"
+title = "victorhang"
+theme = "hugo-coder"
+locale = "en_US"
+defaultContentLanguage = "en"
+
+[pagination]
+pagerSize = 10
+
+[markup]
+[markup.highlight]
+noClasses = false
+
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = true
+
+[params]
+author = "Victor Hang"
+description = "Senior Technical Lead — platforms, Kubernetes, NixOS, and infrastructure automation."
+keywords = "blog,sre,kubernetes,nixos,infrastructure"
+info = ["Senior Technical Lead", "Infrastructure & Platforms"]
+dateFormat = "January 2, 2006"
+since = 2026
+colorScheme = "auto"
+hideColorSchemeToggle = false
+rtl = false
+commit = "https://github.com/Banh-Canh/banh-canh.github.io/tree/main"
+avatarURL = "/images/profile.jpg"
+
+[[params.social]]
+name = "Github"
+icon = "fa-brands fa-github fa-2x"
+weight = 1
+url = "https://github.com/Banh-Canh"
+
+[[params.social]]
+name = "RSS"
+icon = "fa-solid fa-rss fa-2x"
+weight = 2
+url = "/index.xml"
+rel = "alternate"
+type = "application/rss+xml"
+
+[taxonomies]
+category = "categories"
+tag = "tags"
+
+[languages.en]
+label = ":uk:"
+
+[[languages.en.menu.main]]
+name = "About"
+weight = 1
+url = "about/"
+
+[[languages.en.menu.main]]
+name = "Blog"
+weight = 2
+url = "posts/"
