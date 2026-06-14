@@ -49,38 +49,38 @@ RPCU runs a multi-cluster architecture. The key thing to understand: **the OpenS
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                   OpenStack Cluster (baremetal)                 │
-│  lucy                 makise                 quinn                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │              Yaook OpenStack Operators                    │   │
-│  │  ┌────────┐ ┌────────┐ ┌──────────┐ ┌───────────────┐  │   │
-│  │  │ Nova   │ │Neutron │ │ Keystone │ │   Glance      │  │   │
-│  │  │(compute│ │(OVN)   │ │(identity)│ │  (images)     │  │   │
-│  │  └────────┘ └────────┘ └──────────┘ └───────────────┘  │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│  ┌────────┐ ┌─────────┐ ┌────────┐ ┌────────┐ ┌────────────┐  │
-│  │Cilium  │ │ Rook/   │ │cert-   │ │kgateway│ │Crossplane  │  │
-│  │(CNI)   │ │ Ceph    │ │manager │ │(GW API)│ │+ Zitadel   │  │
-│  └────────┘ └─────────┘ └────────┘ └────────┘ └────────────┘  │
-│                           │                                     │
+│                  OpenStack Cluster (baremetal)                  │
+│  lucy                  makise                  quinn            │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │                 Yaook OpenStack Operators                 │  │
+│  │  ┌────────┐ ┌────────┐ ┌──────────┐ ┌───────────────┐     │  │
+│  │  │ Nova   │ │Neutron │ │ Keystone │ │   Glance      │     │  │
+│  │  │(compute│ │(OVN)   │ │(identity)│ │  (images)     │     │  │
+│  │  └────────┘ └────────┘ └──────────┘ └───────────────┘     │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│  ┌────────┐ ┌─────────┐ ┌────────┐ ┌────────┐ ┌────────────┐    │
+│  │Cilium  │ │ Rook/   │ │cert-   │ │kgateway│ │Crossplane  │    │
+│  │(CNI)   │ │ Ceph    │ │manager │ │(GW API)│ │+ Zitadel   │    │
+│  └────────┘ └─────────┘ └────────┘ └────────┘ └────────────┘    │
+│                                │                                │
 │              CAPO provisions VMs for mgmt cluster               │
-└───────────────────────────┼─────────────────────────────────────┘
-                            │
-                            ▼
+└────────────────────────────────┼────────────────────────────────┘
+                                 │
+                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              Management Cluster (OpenStack VMs)                 │
-│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌────────────┐  │
-│  │ Cluster API│  │  Sveltos  │  │Crossplane │  │ Cilium     │  │
-│  │ (CAPI/CAPO)│  │           │  │(chihiro)  │  │(no L2 LB)  │  │
-│  └─────┬─────┘  └─────┬─────┘  └───────────┘  └────────────┘  │
+│               Management Cluster (OpenStack VMs)                │
+│  ┌────────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐    │
+│  │ Cluster API│  │  Sveltos  │  │Crossplane │  │  Cilium   │    │
+│  │ (CAPI/CAPO)│  │           │  │(chihiro)  │  │(no L2 LB) │    │
+│  └─────┬──────┘  └─────┬─────┘  └───────────┘  └───────────┘    │
 │        │              │                                         │
 └────────┼──────────────┼─────────────────────────────────────────┘
          │              │
          ▼              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                  Workload Clusters (CAPI)                       │
-│  CAPI-provisioned OpenStack VMs, managed via Sveltos             │
-│  Opt-in add-ons: Cilium, Flux, OIDC RBAC                       │
+│                    Workload Clusters (CAPI)                     │
+│  CAPI-provisioned OpenStack VMs, managed via Sveltos            │
+│  Opt-in add-ons: Cilium, Flux, OIDC RBAC                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -152,32 +152,6 @@ Each add-on has its own ClusterProfile: Cilium bootstrap (with per-cluster value
 
 Chihiro is configured entirely through a ConfigMap: form fields are defined as injections (paths into the `Cluster` spec) and parameters (Go template variables). Adding a new field is a YAML edit so no code changes, no rebuild. It authenticates via OIDC against the shared Zitadel instance and lives on the management cluster.
 
-## Bootstrapping
-
-Getting RPCU running is a two-phase process. Neither phase requires deep expertise.
-
-### Phase 1: The Baremetal Cluster
-
-1. **Build the NixOS ISO**: run the Hephaestus build tooling to produce a bootable image.
-2. **Install NixOS**: write the ISO to USB, plug into each server, boot. The installer auto-detects the disk, partitions, installs, and reboots. A built-in agent (`ginx`) then pulls the latest config from Git and applies it automatically.
-3. **Bootstrap Kubernetes**: run the `initKubeadm` helper on the first node. It deploys kube-vip for API HA, runs `kubeadm init`, and outputs a join command for the remaining nodes. Run the `joinCPKubeadm` helper on the other two. Three-node cluster with HA, done.
-4. **Install Flux**: apply the operator and instance manifests. Flux watches the Argus repo and reconciles the entire OpenStack stack — Cilium, Rook/Ceph, cert-manager, Yaook operators, and all OpenStack services. Walk away, come back to a running cloud.
-
-### Phase 2: The Management Cluster
-
-{{< notice info "Prerequisite" >}}
-The baremetal OpenStack cluster must be running before you start this phase. CAPO needs it to provision the management cluster's VMs.
-{{< /notice >}}
-
-Once OpenStack is running, the management cluster bootstraps in minutes:
-
-1. **Spin up a kind cluster locally**: temporary bootstrap plane for CAPI.
-2. **Initialize CAPI**: run `clusterctl init` to install the providers. CAPO provisions OpenStack VMs for the real management cluster.
-3. **Pivot**: `clusterctl move` transfers all CAPI resources from kind to the target cluster.
-4. **Install Flux**: apply the operator and instance manifests. The management cluster is now self-managing via GitOps.
-
-From here, workload clusters are created through Chihiro or by applying a `Cluster` CR. Sveltos pushes add-ons, Flux reconciles the rest. The bootstrapping is done, everything else is Git commits.
-
 ## Design Principles
 
 ### Everything is Infrastructure as Code
@@ -192,16 +166,18 @@ You don't need to understand the entire stack to get started. The NixOS layer is
 
 RPCU runs on three [Hetzner dedicated servers](https://www.hetzner.com/dedicated-rootserver/) (Server Auction). Each machine has two NICs: one for public/management connectivity and a second internal NIC that connects all three nodes together on a dedicated Gbit LAN.
 
-| Node      | CPU                         | RAM                    | Storage          | NIC                          |
-| --------- | --------------------------- | ---------------------- | ---------------- | ---------------------------- |
+| Node      | CPU                         | RAM                    | Storage          | NIC                              |
+| --------- | --------------------------- | ---------------------- | ---------------- | -------------------------------- |
 | lucy      | Intel Core i7-8700 (6c/12t) | 64 GB DDR4 (4× 16 GB)  | 2× 1 TB NVMe SSD | 2× 1 Gbit (1 public, 1 internal) |
 | makise    | Intel Core i7-7700 (4c/8t)  | 64 GB DDR4 (4× 16 GB)  | 2× 1 TB NVMe SSD | 2× 1 Gbit (1 public, 1 internal) |
 | quinn     | Intel Core i7-8700 (6c/12t) | 128 GB DDR4 (4× 32 GB) | 2× 1 TB NVMe SSD | 2× 1 Gbit (1 public, 1 internal) |
-| **Total** | **16 cores / 32 threads**   | **256 GB DDR4**        | **6 TB NVMe**    | **6× 1 Gbit**                |
+| **Total** | **16 cores / 32 threads**   | **256 GB DDR4**        | **6 TB NVMe**    | **6× 1 Gbit**                    |
 
 Modest consumer-grade hardware with no enterprise NICs, no redundant networking, no dedicated load balancers. That constraint is the point: everything above runs the full OpenStack control plane, Rook/Ceph storage, and nested CAPI clusters on top of it.
 
 ## What's Next
+
+This post is an overview. In follow-up posts I'll detail the bootstrapping process more thoroughly, and over time I'll dig into some of the other technical details behind RPCU, the networking quirks, the OpenStack-on-Kubernetes wiring, and the GitOps workflow.
 
 If you're interested in the architecture or want to try building something similar, the documentation and code are on [GitHub](https://github.com/rpcu). For the complete documentation of architecture deep-dives, bootstrap guides, and operational procedures, please visit the [RPCU Documentation](https://rpcu.github.io/aletheia/).
 
