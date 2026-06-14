@@ -6,7 +6,7 @@ description: 'A look at the architecture, design decisions, and technology choic
 ---
 
 {{< notice info "AI Assistance" >}}
-Throughout this project, AI assistance has been used to increase velocity. As a hobby project, it helps move faster on the parts that matter. The fact that so much of RPCU is described as code also makes it far easier for AI to assist — everything is declarative, version-controlled, and self-documenting, so the context an AI needs lives right there in the repositories.
+Throughout this project, AI assistance has been used to increase velocity. As a hobby project, it helps move faster on the parts that matter. The fact that so much of RPCU is described as code also makes it far easier for AI to assist, everything is declarative, version-controlled, and self-documenting, so the context an AI needs lives right there in the repositories.
 {{< /notice >}}
 
 ## What is RPCU?
@@ -134,7 +134,7 @@ The ClusterClass pattern means a new cluster is a small `Cluster` CR with inject
 
 Flux watches Argus and reconciles live state to match Git. Each cluster has its own sync path. On the OpenStack cluster, Flux manages everything: Cilium, Rook/Ceph, cert-manager, kgateway, [Crossplane](https://github.com/crossplane/crossplane), and the Yaook operators that run OpenStack itself.
 
-Workload clusters get Flux via Sveltos — the Flux Operator + a FluxInstance pointing at Argus. Flux self-reconciles from there.
+Workload clusters get Flux installed via Sveltos (the Flux Operator + a FluxInstance pointing at Argus). Once installed, Flux self-reconciles itself and reconcile any other deployment set in Argus.
 
 The core principle: **a change is a Git commit**.
 
@@ -214,5 +214,6 @@ RPCU is built by:
 - [@Banh-Canh](https://github.com/Banh-Canh)
 - [@clcondorcet](https://github.com/clcondorcet)
 - [@maxduret](https://github.com/maxduret)
+- [@chocomooncake](https://github.com/chocomooncake)
 
 ---
