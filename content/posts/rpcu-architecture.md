@@ -190,14 +190,14 @@ You don't need to understand the entire stack to get started. The NixOS layer is
 
 ## The Hardware
 
-RPCU runs on three [Hetzner dedicated servers](https://www.hetzner.com/dedicated-rootserver/) (Server Auction), connected together over a dedicated Gbit LAN (vSwitch) in a datacenter.
+RPCU runs on three [Hetzner dedicated servers](https://www.hetzner.com/dedicated-rootserver/) (Server Auction). Each machine has two NICs: one for public/management connectivity and a second internal NIC that connects all three nodes together on a dedicated Gbit LAN.
 
-| Node      | CPU                         | RAM                    | Storage          | NIC                  |
-| --------- | --------------------------- | ---------------------- | ---------------- | -------------------- |
-| lucy      | Intel Core i7-8700 (6c/12t) | 64 GB DDR4 (4× 16 GB)  | 2× 1 TB NVMe SSD | 1 Gbit Intel I219-LM |
-| makise    | Intel Core i7-7700 (4c/8t)  | 64 GB DDR4 (4× 16 GB)  | 2× 1 TB NVMe SSD | 1 Gbit Intel I219-LM |
-| quinn     | Intel Core i7-8700 (6c/12t) | 128 GB DDR4 (4× 32 GB) | 2× 1 TB NVMe SSD | 1 Gbit Intel I219-LM |
-| **Total** | **16 cores / 32 threads**   | **256 GB DDR4**        | **6 TB NVMe**    | **3× 1 Gbit**        |
+| Node      | CPU                         | RAM                    | Storage          | NIC                          |
+| --------- | --------------------------- | ---------------------- | ---------------- | ---------------------------- |
+| lucy      | Intel Core i7-8700 (6c/12t) | 64 GB DDR4 (4× 16 GB)  | 2× 1 TB NVMe SSD | 2× 1 Gbit (1 public, 1 internal) |
+| makise    | Intel Core i7-7700 (4c/8t)  | 64 GB DDR4 (4× 16 GB)  | 2× 1 TB NVMe SSD | 2× 1 Gbit (1 public, 1 internal) |
+| quinn     | Intel Core i7-8700 (6c/12t) | 128 GB DDR4 (4× 32 GB) | 2× 1 TB NVMe SSD | 2× 1 Gbit (1 public, 1 internal) |
+| **Total** | **16 cores / 32 threads**   | **256 GB DDR4**        | **6 TB NVMe**    | **6× 1 Gbit**                |
 
 Modest consumer-grade hardware with no enterprise NICs, no redundant networking, no dedicated load balancers. That constraint is the point: everything above runs the full OpenStack control plane, Rook/Ceph storage, and nested CAPI clusters on top of it.
 
