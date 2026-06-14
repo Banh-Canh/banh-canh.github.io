@@ -217,3 +217,7 @@ RPCU is built by:
 - [@chocomooncake](https://github.com/chocomooncake)
 
 ---
+
+{{< notice note "A small personal note" >}}
+[StackHPC](https://www.stackhpc.com/) inspired me to dig into OpenStack ahead of a role there. I figured the best way to prepare was to combine it with the tools I already know and enjoy and learn by building.
+{{< /notice >}}
