@@ -5,10 +5,6 @@ tags: ['infrastructure', 'openstack', 'kubernetes', 'nixos', 'gitops', 'sre']
 description: 'A look at the architecture, design decisions, and technology choices behind RPCU — an open source cloud infrastructure platform built on OpenStack, Kubernetes, and NixOS.'
 ---
 
-{{< notice info "AI Assistance" >}}
-Throughout this project, AI assistance has been used to increase velocity. As a hobby project, it helps move faster on the parts that matter. The fact that so much of RPCU is described as code also makes it far easier for AI to assist, everything is declarative, version-controlled, and self-documenting, so the context an AI needs lives right there in the repositories.
-{{< /notice >}}
-
 ## What is RPCU?
 
 <img src="/images/rpcu-logo.png" alt="RPCU" width="150" style="float: right; margin: 0 0 1em 1.5em;">
@@ -157,6 +153,10 @@ Chihiro is configured entirely through a ConfigMap: form fields are defined as i
 ### Everything is Infrastructure as Code
 
 There is no manual step. Every component from the operating system to the OpenStack control plane to tenant networking is described in code and reconciled automatically. A Git commit is the only interface.
+
+{{< notice info "AI Assistance" >}}
+Throughout this project, AI assistance has been used to increase velocity. As a hobby project, it helps move faster on the parts that matter. The fact that so much of RPCU is described as code also makes it far easier for AI to assist, everything is declarative, version-controlled, and self-documenting, so the context an AI needs lives right there in the repositories.
+{{< /notice >}}
 
 ### Progressive Complexity
 
