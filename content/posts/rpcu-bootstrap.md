@@ -160,4 +160,13 @@ The bootstrap is wiring them together in the right order. You can inspect any la
 
 ## Up next: Chihiro
 
-So far, creating CAPI workload clusters means writing manifests and talking to `kubectl`. **Chihiro** fixes that — a lightweight dashboard that watches CAPI resources and lets you spin up, edit, and tear down clusters from a web interface. A video walkthrough is coming with the release.
+So far, creating CAPI workload clusters means writing manifests and talking to `kubectl`. **Chihiro** fixes that — a lightweight dashboard that watches CAPI resources and lets you spin up, edit, and tear down clusters from a web interface.
+
+<video controls width="100%">
+  <source src="/videos/rpcu-bootstrap-demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+What makes Chihiro interesting is how the form itself is built. Every field on the "Create Cluster" page is defined in a ConfigMap. Want to expose a different cluster parameter? That's a YAML edit, not a code change. The UI reads the ConfigMap at runtime and renders whatever you give it.
+
+Next post will walk through how it works under the hood: the ConfigMap schema, how it maps to Cluster API resources, and how to extend it for your own setup.
