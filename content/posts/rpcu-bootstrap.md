@@ -5,7 +5,7 @@ tags: ['infrastructure', 'openstack', 'kubernetes', 'nixos', 'gitops']
 description: 'How RPCU goes from three bare servers to a fully operational OpenStack cloud — what you run, in what order, and where the manual steps are.'
 ---
 
-In the [previous post](/posts/rpcu-architecture/) I covered the architecture: three clusters, two parts, a stack of open source tools wired together with Infrastructure as Code. This post is about the actual bootstrap. What you run, in what order, and where the manual steps are.
+In the [previous post](/posts/rpcu-architecture/) I covered the architecture: three clusters, two parts, a stack of open source tools wired together with Infrastructure as Code. Full documentation lives in [Aletheia](https://github.com/RPCU/aletheia). This post is about the actual bootstrap. What you run, in what order, and where the manual steps are.
 
 Fewer steps than you'd expect. The complexity lives in the definitions, not in the process.
 
@@ -25,7 +25,7 @@ The OpenStack cluster is the foundation. Three Hetzner servers, no CAPI, no exte
 
 ### Step 1: Build and install NixOS
 
-Hephaestus provides a devenv with build helpers:
+[Hephaestus](https://github.com/RPCU/hephaestus) provides a devenv with build helpers:
 
 ```bash
 devenv shell
@@ -34,7 +34,7 @@ build-iso --argstr partition root
 
 Two image builders matter here: `build-iso` for baremetal, `build-qcow2` for VMs. Same NixOS configuration, different output formats. The partition layout is configurable: `root`, `root-grub` for BIOS, `small` for constrained disks. There is also `test-iso` which builds and boots the ISO in QEMU locally.
 
-Write the ISO to a USB drive, plug it into a server, boot. The installer auto-detects the first unused disk, wipes it, partitions it, runs `nixos-install`, and reboots. After first boot, the `ginx` agent pulls the latest config from Git and applies it via `colmena apply-local`. Repeat for each node (lucy, makise, quinn).
+Write the ISO to a USB drive, plug it into a server, boot. The installer auto-detects the first unused disk, wipes it, partitions it, runs `nixos-install`, and reboots. After first boot, the [`ginx`](https://github.com/didactiklabs/ginx) agent pulls the latest config from Git and applies it via `colmena apply-local`. Repeat for each node (lucy, makise, quinn).
 
 {{< notice info "Hephaestus's perimeter" >}}
 Hephaestus owns the operating system. Packages, services, kernel modules, network interfaces, all Nix expressions. It does not know about Kubernetes or OpenStack. Its job ends at a running NixOS node with SSH access.
@@ -78,7 +78,7 @@ Kubernetes is the platform layer. kubeadm bootstraps the cluster, kube-vip provi
 
 ### Step 4: Install Flux and let Git take over
 
-Install the Flux Operator, then apply a FluxInstance pointing at `clusters/openstack/` in the Argus repository. Flux reconciles the full stack: cert-manager, gateway components, Rook/Ceph, Crossplane, External Secrets, and the Yaook operators that run OpenStack itself.
+Install the Flux Operator, then apply a FluxInstance pointing at `clusters/openstack/` in the [Argus](https://github.com/RPCU/argus) repository. Flux reconciles the full stack: cert-manager, gateway components, Rook/Ceph, Crossplane, External Secrets, and the Yaook operators that run OpenStack itself.
 
 The reconciliation order matters. Cilium is already running. Then cert-manager and gateways. Then Rook/Ceph for storage. Then Yaook operators deploying Keystone, Nova, Neutron/OVN, Glance, Cinder, Octavia, Designate, Barbican. Once all Kustomizations reach `Ready`, the OpenStack control plane is live.
 
