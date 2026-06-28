@@ -238,6 +238,6 @@ That is it. The form picks it up on the next sync. No Go code, no frontend chang
 If you run a different CAPI provider, you swap the template. If you need different flavors, you change the select options. If you want to expose a field only to certain groups, you add `visible_groups`. The ConfigMap schema is the interface, and it is a deliberately narrow one.
 
 {{< notice tip "Try it yourself" >}}
-The full ConfigMap is in [Argus](https://github.com/RPCU/argus) under `clusters/mgmt/apps/chihiro/`. Clone it, change a parameter, and watch the form update. The source code for Chihiro itself lives at [github.com/Bealvio/chihiro](https://github.com/Bealvio/chihiro). Full documentation is in [Aletheia](https://rpcu.github.io/aletheia/workload-clusters/chihiro.html).
+The full ConfigMap is in [Argus](https://github.com/RPCU/argus) under `clusters/mgmt/apps/chihiro/`. Clone it, change a parameter, and watch the form update. The source code for Chihiro itself lives at [github.com/RPCU/chihiro](https://github.com/RPCU/chihiro). Full documentation is in [Aletheia](https://rpcu.github.io/aletheia/workload-clusters/chihiro.html).
 {{< /notice >}}
 
